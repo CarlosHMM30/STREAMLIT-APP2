@@ -1,6 +1,5 @@
 pandas
 seaborn
-matplotlib.pyplot
-PILimport
-io                  
+matplotlib
+Pillow
 xlsxwriter
