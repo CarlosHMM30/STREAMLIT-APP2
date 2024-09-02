@@ -1,3 +1,4 @@
+# Imports
 import pandas            as pd
 import streamlit         as st
 import seaborn           as sns
@@ -47,7 +48,7 @@ def to_excel(df):
 
 def main():
     st.set_page_config(page_title = 'Telemarketing analisys', 
-        page_icon = 'telmarketing_icon.png',
+        page_icon = 'C:/Users/carlo/Downloads/Nova pasta/img/telmarketing_icon.png',
         layout="wide",
         initial_sidebar_state='expanded'
     )
@@ -55,7 +56,7 @@ def main():
     st.markdown("---")
 
     
-    image = Image.open("Bank-Branding.jpg")
+    image = Image.open("C:/Users/carlo/Downloads/Nova pasta/img/Bank-Branding.jpg")
     st.sidebar.image(image)
 
     # Botão para carregar arquivo na aplicação
@@ -75,7 +76,7 @@ def main():
         with st.sidebar.form(key='my_form'):
 
             # SELECIONA O TIPO DE GRÁFICO
-            graph_type = st.radio('Tipo de gráfico:', ('Barras', 'Pizza'))
+            graph_type = st.radio('Tipo de gráfico:', ('Barras', 'Pizza', 'Barras Empilhadas'))
         
             # IDADES
             max_age = int(bank.age.max())
@@ -134,6 +135,17 @@ def main():
             day_of_week_list.append('all')
             day_of_week_selected =  st.multiselect("Dia da semana", day_of_week_list, ['all'])
 
+            #DURAÇÃO
+            duration_list = bank.duration.unique().tolist()
+            duration_list.append('all')
+            duration_selected =  st.multiselect("Duração", duration_list, ['all'])
+                        
+            #CAMPAIGN
+            campaign_list = bank.campaign.unique().tolist()
+            campaign_list.append('all')
+            campaign_selected =  st.multiselect("Campanha", campaign_list, ['all'])
+
+
 
             # encadeamento de métodos para filtrar a seleção
             bank = (bank.query("age >= @idades[0] and age <= @idades[1]")
@@ -145,6 +157,9 @@ def main():
                         .pipe(multiselect_filter, 'contact', contact_selected)
                         .pipe(multiselect_filter, 'month', month_selected)
                         .pipe(multiselect_filter, 'day_of_week', day_of_week_selected)
+                        .pipe(multiselect_filter, 'duration', duration_selected)
+                        .pipe(multiselect_filter, 'campaign', campaign_selected)
+
             )
 
 
@@ -216,7 +231,8 @@ def main():
             ax[1].set_title('Dados filtrados',
                             fontweight ="bold")
             
-        else:
+        elif graph_type == 'Pizza':
+
             bank_raw_target_perc.plot(kind='pie', autopct='%.2f', y='proportion', ax = ax[0])
             ax[0].set_title('Dados brutos',
                             fontweight ="bold")
@@ -227,13 +243,30 @@ def main():
             ax[1].set_title('Dados filtrados',
                             fontweight ="bold")
             ax[1].legend(loc='center', bbox_to_anchor=(0.2, 0.1))  
-        
-       
+
+        else:
+            meses=['a']
+
+            bar1 = ax[0].bar(meses, bank_raw_target_perc['proportion'][1], label='Yes', color='r',)
+            bar2 = ax[0].bar(meses, bank_raw_target_perc['proportion'][0], label='No', bottom=bank_raw_target_perc['proportion'][1], color='b')
+            ax[0].set_title('Dados brutos', fontweight ="bold")
+            ax[0].legend(loc='center', bbox_to_anchor=(0.1, 0.1), fontsize=4)  
+            # Adicionando os rótulos de percentual
+            ax[0].bar_label(bar1, fmt='%.2f%%')
+            ax[0].bar_label(bar2, fmt='%.2f%%')
+
+            bar3 = ax[1].bar(meses, bank_target_perc['proportion'][1], label='Yes', color='r',)
+            bar4 = ax[1].bar(meses, bank_target_perc['proportion'][0], label='No', bottom=bank_target_perc['proportion'][1], color='b')
+            ax[1].set_title('Dados filtrados',
+                            fontweight ="bold")
+            ax[1].legend(loc='center', bbox_to_anchor=(0.1, 0.1), fontsize=4) 
+
+            ax[1].bar_label(bar3, fmt='%.2f%%')
+            ax[1].bar_label(bar4, fmt='%.2f%%') 
 
         st.pyplot(plt)
 
 
 if __name__ == '__main__':
 	main()
-    
 
