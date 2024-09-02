@@ -245,7 +245,7 @@ def main():
             ax[1].legend(loc='center', bbox_to_anchor=(0.2, 0.1))  
 
         else:
-            meses=['a']
+            meses=['Escolha']
 
             bar1 = ax[0].bar(meses, bank_raw_target_perc['proportion'][1], label='Yes', color='r',)
             bar2 = ax[0].bar(meses, bank_raw_target_perc['proportion'][0], label='No', bottom=bank_raw_target_perc['proportion'][1], color='b')
